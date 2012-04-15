@@ -114,7 +114,7 @@ void Buzzer(int number)
     digitalWrite(Buzz,LOW);
     delay(200);
   }
-  return;
+
 }
 
 
@@ -124,7 +124,7 @@ void Buzzer(int number)
 void display_lcd (int pos , int line ,const char* lable){
   lcd.setCursor(pos,line);
   lcd.print(lable);
-  return;
+
 
 }
 
@@ -134,17 +134,14 @@ void display_lcd (int pos , int line ,const char* lable){
 
 // 1 second button press
 int Button_1sec_press (int Button_press){
-  int a;
   if (digitalRead(Button_press)==0){
     delay (1000);
     if (digitalRead(Button_press)==0){
-      a = 2;
-    }
-    else {
-      a = 0;
+      return 1;
     }
   }
-  return(a);
+  return 0;
+    
 }
 
 
@@ -153,15 +150,11 @@ int Button_1sec_press (int Button_press){
 
 // repeat button press
 int Button_repeat (int Button_press){
-  int a;
   if (digitalRead(Button_press)==0){
     delay(200);
-    a = 2;
+    return 1;
   }
-  else{
-    a = 0;
-  }
-  return (a);
+  return 0;
 }
 
 
@@ -169,17 +162,12 @@ int Button_repeat (int Button_press){
 
 // holds whilst button pressed 
 int Button_hold_press (int Button_press){
-  int a;
   if (digitalRead (Button_press)==0){
     while (digitalRead (Button_press)==0){
     }
-    a = 2;
+   return 1;
   }
-  else
-  {
-    a = 0;
-  }
-  return (a);
+  return 0;
 }
 
 
@@ -212,7 +200,7 @@ void Temperature(void){
     Conv_start = false;
     return;
   } 
-  return;
+
 }
 
 
@@ -229,7 +217,7 @@ void PID_HEAT (void){
   if(Output > now - windowStartTime) digitalWrite(Heat,HIGH);
   else digitalWrite(Heat,LOW);
 
-  return;
+
 }
 
 
@@ -244,7 +232,7 @@ void load_pid_settings (void)
   myPID.SetTunings(eepromKp,eepromKi,eepromKd); // send the PID settings to the PID
   WindowSize = word(EEPROM.read(33),EEPROM.read(34));
   myPID.SetOutputLimits(0, WindowSize);
-  return;
+
 }  
 
 
@@ -255,12 +243,12 @@ boolean wait_for_confirm (boolean& test)
 { 
   wtBtn = true;
   while (wtBtn){               // wait for comfirmation 
-    if (Button_hold_press(Button_prev)==2){
+    if (Button_hold_press(Button_prev)){
       test = true;
       wtBtn = false;
       lcd.clear();
     }
-    if (Button_hold_press(Button_nxt)==2){
+    if (Button_hold_press(Button_nxt)){
       test = false;
       wtBtn = false;
       lcd.clear();
@@ -276,7 +264,7 @@ boolean wait_for_confirm (boolean& test)
 float change_temp(float& temp_change,int upper_limit,int lower_limit)
 {
   // Increase set temp
-  if (Button_repeat(Button_up)==2){
+  if (Button_repeat(Button_up)){
     if (temp_change>=100){
       temp_change++; 
     }
@@ -286,7 +274,7 @@ float change_temp(float& temp_change,int upper_limit,int lower_limit)
     if (temp_change > upper_limit)temp_change = upper_limit;
   }
   // decrease temp
-  if (Button_repeat(Button_dn)==2) 
+  if (Button_repeat(Button_dn)) 
   {
     if(temp_change>=100){
       temp_change--;
@@ -296,7 +284,7 @@ float change_temp(float& temp_change,int upper_limit,int lower_limit)
     }
     if ( temp_change < lower_limit) temp_change = lower_limit;
   }
-  // return 0;
+
 }
 
 
@@ -310,7 +298,7 @@ void quit_mode (boolean& processLoop)
     processLoop = false;
     lcd.clear();
   }
-  return ;
+
 }
 
 
@@ -320,9 +308,7 @@ void quit_mode (boolean& processLoop)
 void heat_control(void)
 {
   //turns heat on or off      
-  if (digitalRead(Button_prev)==0){
-    while(digitalRead(Button_prev)==0){
-    }
+  if (Button_hold_press(Button_prev)){
     if (mheat==false){
       mheat = true;
       windowStartTime = millis();
@@ -332,7 +318,7 @@ void heat_control(void)
       digitalWrite(Heat,LOW);
     }
   }
-  return;
+
 }
 
 
@@ -354,7 +340,7 @@ void pump_control(void)
     while(digitalRead(Button_nxt)==0){
     }
   }
-  return;
+
 }
 
 
@@ -364,7 +350,7 @@ void prompt_for_water (void){
   display_lcd(0,0,"  Water added?  ");
   Buzzer(3);
   display_lcd(0,1,"       Yes  Quit");
-  return;
+
 }
 
 
@@ -385,7 +371,7 @@ void pump_prime(void)
   delay (1000);
   digitalWrite(Pump,LOW);  
   lcd.clear(); 
-  return;  
+  
 }
 
 
@@ -437,7 +423,7 @@ void load_stage_settings (void){
   timeAddr = 8;
   nmbrStgs = EEPROM.read(38);// read the number of steps
   nmbrHops = EEPROM.read(39);//read the number of hop additions
-  return;
+
 }
 
 
@@ -448,7 +434,7 @@ void start_time (void)
   // windowStartTime = millis();
   second = 0;
   // minute = 0;
-  return;  
+ 
 }
 
 
@@ -469,7 +455,7 @@ void stage_timing (int stage)
       EEPROM.write(37,lowByte(stageTime));// saves stage time incase of interuption
     }
   }
-  return;
+
 }
 
 
@@ -534,7 +520,7 @@ void stage_loop (int stage, float H_temp=80, float L_temp=30){
     quit_mode (autoEnter);
   }
 
-  return;
+
 }
 
 
@@ -552,7 +538,7 @@ void get_stage_settings (void)
     stageTime = EEPROM.read(timeAddr); // gets stage time
     EEPROM.write(37,lowByte(stageTime));// saves the intial stage time
   } 
-  return;
+
 }
 
 
@@ -589,7 +575,7 @@ void add_malt (void)
       }
     }
   }
-  return;
+
 }
 
 
@@ -643,7 +629,7 @@ void get_boil_settings (void)
   blhpAddr = hopAdd+41;
   lcd.clear();
   hopTime = EEPROM.read(blhpAddr);
-  return; 
+ 
 }
 
 
@@ -676,7 +662,7 @@ void manual_mode (void)
       PID_HEAT(); 
     }        
   }
-  return;
+
 }
 
 
@@ -746,7 +732,7 @@ void save_settings (int addr,int data)
 {
   EEPROM.write(addr,highByte(data));
   EEPROM.write((addr+1),lowByte(data));
-  return;
+
 }  
 
 
@@ -754,7 +740,7 @@ void save_settings (int addr,int data)
 void save_settings (int addr,byte data){
 
   EEPROM.write(addr,data);
-  return;
+
 }
 
 
@@ -763,14 +749,14 @@ void save_settings (int addr,byte data){
 int change_set(int& set_change,int upper_limit,int lower_limit,int step_size)
 {
   // Increase set temp
-  if (Button_repeat(Button_up)==2){
+  if (Button_repeat(Button_up)){
     set_change+=step_size;
     display_lcd(0,1,"                ");
   }
   if (set_change > upper_limit)set_change = upper_limit;
 
   // decrease temp
-  if (Button_repeat(Button_dn)==2)
+  if (Button_repeat(Button_dn))
   {
     set_change-=step_size;
     display_lcd(0,1,"                ");    
@@ -782,14 +768,14 @@ int change_set(int& set_change,int upper_limit,int lower_limit,int step_size)
 int change_set(byte& set_change,int upper_limit,int lower_limit,int step_size)
 {
   // Increase set temp
-  if (Button_repeat(Button_up)==2){
+  if (Button_repeat(Button_up)){
     set_change+=step_size;
     display_lcd(0,1,"                ");
   }
   if (set_change > upper_limit)set_change = upper_limit;
 
   // decrease temp
-  if (Button_repeat(Button_dn)==2)
+  if (Button_repeat(Button_dn))
   {
     set_change-=step_size;
     display_lcd(0,1,"                ");    
@@ -830,7 +816,7 @@ void unit_set (void)
       quit_mode(pidLoop);
       if (!(pidLoop))i=6;
 
-      if(Button_hold_press(Button_nxt)==2){
+      if(Button_hold_press(Button_nxt)){
         if (i >= 4){
           save_settings(setaddr,lowByte(pidSet));
           pidLoop = false;
@@ -878,7 +864,7 @@ void set_stages (void)
         return;
       }
       change_temp(stgtmpSet,85,20);
-      if (Button_hold_press(Button_nxt)==2){
+      if (Button_hold_press(Button_nxt)){
         stgtmpSet = stgtmpSet*16;
         stgtmpSetword =word(stgtmpSet);
         save_settings(tempHAddr,stgtmpSetword);
@@ -898,7 +884,7 @@ void set_stages (void)
       }
       change_set(stgtimSet,120,0,1);
 
-      if (Button_hold_press(Button_nxt)==2){
+      if (Button_hold_press(Button_nxt)){
         save_settings(timeAddr,lowByte(stgtimSet));
         display_lcd(0,1,"                ");  
         autotimeLoop = false;
@@ -940,7 +926,7 @@ void set_hops (void)
       }
       change_set(hopSet,180,0,1);
 
-      if (Button_hold_press(Button_nxt)==2){
+      if (Button_hold_press(Button_nxt)){
         save_settings(blhpAddr,hopSet);
         lcd.setCursor(0,1);
         lcd.print("                ");    
@@ -973,16 +959,16 @@ void setup_mode (void)
       display_lcd(0,0,"Unit Parameters ");
       display_lcd(0,1,"                ");
       quit_mode(setupLoop);
-      if (Button_hold_press(Button_up)==2)setupMenu = 1;
-      if (Button_hold_press(Button_nxt)==2)unit_set();  
+      if (Button_hold_press(Button_up))setupMenu = 1;
+      if (Button_hold_press(Button_nxt))unit_set();  
       break;
 
       case(1):
       display_lcd(0,0," Auto Parameters");
       display_lcd(0,1,"                ");
       quit_mode(setupLoop);
-      if (Button_hold_press(Button_dn)==2)setupMenu = 0;
-      if (Button_hold_press(Button_nxt)==2)auto_set();
+      if (Button_hold_press(Button_dn))setupMenu = 0;
+      if (Button_hold_press(Button_nxt))auto_set();
       break;
     }
   }
@@ -1063,9 +1049,9 @@ void loop()
     lcd.write(0);
 
 
-    if (Button_1sec_press(Button_dn)==2)mainMenu = 1;
-    if (Button_1sec_press(Button_prev)==2)mainMenu = 2;
-    if (Button_1sec_press(Button_nxt)==2)mainMenu = 3;
+    if (Button_1sec_press(Button_dn))mainMenu = 1;
+    if (Button_1sec_press(Button_prev))mainMenu = 2;
+    if (Button_1sec_press(Button_nxt))mainMenu = 3;
     break;    
   }
 
