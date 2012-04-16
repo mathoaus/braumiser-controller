@@ -141,7 +141,7 @@ int Button_1sec_press (int Button_press){
     }
   }
   return 0;
-    
+
 }
 
 
@@ -165,7 +165,7 @@ int Button_hold_press (int Button_press){
   if (digitalRead (Button_press)==0){
     while (digitalRead (Button_press)==0){
     }
-   return 1;
+    return 1;
   }
   return 0;
 }
@@ -349,7 +349,7 @@ void pump_control(void)
 void prompt_for_water (void){
   display_lcd(0,0,"  Water added?  ");
   Buzzer(3);
-  display_lcd(0,1,"       Yes  Quit");
+  display_lcd(0,1,"       Ok   Quit");
 
 }
 
@@ -371,7 +371,7 @@ void pump_prime(void)
   delay (1000);
   digitalWrite(Pump,LOW);  
   lcd.clear(); 
-  
+
 }
 
 
@@ -434,7 +434,7 @@ void start_time (void)
   // windowStartTime = millis();
   second = 0;
   // minute = 0;
- 
+
 }
 
 
@@ -513,10 +513,10 @@ void stage_loop (int stage, float H_temp=80, float L_temp=30){
 
     if (stage==9){
       if(stageTime<lastminute){
-      hop_add();
+        hop_add();
       }
     }
-    
+
     quit_mode (autoEnter);
   }
 
@@ -546,72 +546,51 @@ void get_stage_settings (void)
 
 void add_malt (void)
 {
+  boolean malt;
   lcd.clear();
   digitalWrite(Pump,LOW);
   digitalWrite(Heat,LOW);
-  lcd.print("    Add Malt   ");
+  display_lcd(0,0,"    Add Malt    ");
   Buzzer(3);
-  lcd.setCursor(0,1);
-  lcd.print("         Confirm");
-  wtBtn = true;
-  while (wtBtn){
-    if (digitalRead(Button_nxt)==0){
-      wtBtn = false;
-      lcd.clear();
-      while(digitalRead(Button_nxt)==0){
-      }
-    }
-    if (digitalRead(Button_dn)==0) 
-    {
-      delay(200);
-      if (digitalRead(Button_up)==0){
-        digitalWrite(Heat,LOW);
-        digitalWrite(Pump,LOW);
-        lcd.clear();
-        delay(50);
-        mainMenu=0;
-        autoEnter = false;
-        i = 10;
-      }
-    }
+  display_lcd(0,1,"        Ok  Quit");
+  wait_for_confirm(malt);
+  if (malt==false){
+    digitalWrite(Heat,LOW);
+    digitalWrite(Pump,LOW);
+    lcd.clear();
+    delay(50);
+    mainMenu=0;
+    autoEnter = false;
   }
-
 }
 
 
 void remove_malt (void)
 {
+  boolean malt;
   lcd.clear();
   x = 9;               // used add to stage count on the final stage for the resume 
   EEPROM.write(36,lowByte(x)); // stores the stage number for the resume
   digitalWrite(Pump,LOW);
   digitalWrite(Heat,LOW);
-  lcd.print("  Remove  Malt  ");
-  lcd.setCursor(0,1);
+  display_lcd(0,0,"  Remove  Malt  ");
   Buzzer(3);
-  lcd.print("         Confirm");
-  wtBtn = true;
-  while (wtBtn){
-    if (digitalRead(Button_nxt) == 0){
-      wtBtn = false;
-      lcd.clear();
-      while(digitalRead(Button_nxt)==0){
-      }
-    }
-    if (digitalRead(Button_dn) == 0) 
-    {
-      delay(200);
-      if (digitalRead(Button_up) == 0){
-        digitalWrite(Heat,LOW);
-        digitalWrite(Pump,LOW);
-        lcd.clear();
-        delay(50);
-        mainMenu=0;
-        autoEnter = false;
-      }
-    }
-  } 
+  display_lcd(0,1,"        Ok  Quit");
+  wait_for_confirm(malt);
+  if (malt==false){
+    stageTime = EEPROM.read(40);
+    EEPROM.write(37,lowByte(stageTime));
+    digitalWrite(Heat,LOW);
+    digitalWrite(Pump,LOW);
+    lcd.clear();
+    delay(50);
+    mainMenu=0;
+    autoEnter = false;
+  }
 }
+
+
+
 
 
 
@@ -629,7 +608,7 @@ void get_boil_settings (void)
   blhpAddr = hopAdd+41;
   lcd.clear();
   hopTime = EEPROM.read(blhpAddr);
- 
+
 }
 
 
@@ -789,13 +768,13 @@ int change_set(byte& set_change,int upper_limit,int lower_limit,int step_size)
 void unit_set (void)
 {
   int param[] ={
-    200,-200,1,200,-200,1,200,-200,1,5000,500,500,9,1,1,8,0,1          };
+    200,-200,1,200,-200,1,200,-200,1,5000,500,500,9,1,1,8,0,1              };
   int a = 0;
   boolean pidLoop = false;
   int pidSet,setaddr;
   int windowSizeSet;
   char* setName[] ={
-    "Kp = ","Ki = ","Kd = ","Windowsize= ","Num of Stages=","Num of Hops="          };
+    "Kp = ","Ki = ","Kd = ","Windowsize= ","Num of Stages=","Num of Hops="              };
 
   setaddr = 0;
   for(int i=0;i<6;i++){
@@ -835,7 +814,7 @@ void unit_set (void)
     }
     a+=3;
   }
-  return;
+
 }
 
 
@@ -894,7 +873,7 @@ void set_stages (void)
     tempLAddr+= 3;
     timeAddr+= 3;
   }
-  return;
+
 }  
 
 void set_hops (void)
@@ -935,7 +914,7 @@ void set_hops (void)
     }
     blhpAddr+= 1;
   }
-  return;
+
 }
 
 
@@ -944,7 +923,7 @@ void auto_set(void)
 {
   set_stages();
   set_hops();
-  return;
+
 }
 
 
@@ -972,7 +951,7 @@ void setup_mode (void)
       break;
     }
   }
-  return;
+
 }   
 
 
@@ -1057,6 +1036,8 @@ void loop()
 
 
 }
+
+
 
 
 
