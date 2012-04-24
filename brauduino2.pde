@@ -71,7 +71,7 @@ byte pumpTime;
 byte data[2];
 byte second;
 //byte minute;
-byte i;
+//byte i;
 byte Busy = 0;
 byte nmbrStgs;
 byte nmbrHops;
@@ -192,7 +192,7 @@ void Temperature(void){
     ds.reset();
     ds.skip();
     ds.write(0xBE);  
-    for ( i = 0; i < 2; i++) {           // we need 2 bytes
+    for ( int i = 0; i < 2; i++) {           // we need 2 bytes
       data[i] = ds.read();
     } 
     unsigned int raw = (data[1] << 8) + data[0];
@@ -382,6 +382,7 @@ void pump_rest (int stage)
     else digitalWrite(Pump,LOW);
     if (Temp_c >= 95)tempReached = true; 
   }
+  else{
   pumptempError = stageTemp-Temp_c;
   if (pumptempError <= 0)tempReached = true;
   if ((pumpTime < 10)){ // starts pumps and heat
@@ -394,7 +395,7 @@ void pump_rest (int stage)
     pumpRest = true;
     if(pumpTime>=12 || (pumptempError > 1.0))pumpTime = 0;
   } 
-
+  }
 }
 
 void check_for_resume(void){
@@ -658,6 +659,7 @@ void auto_mode (void)
     x = 0;
   }
   if (autoEnter){     // mash steps
+    EEPROM.write(35,1);// auto mode started
     for (int i = x;i < nmbrStgs;i++){
       EEPROM.write(36,lowByte(x)); // stores the stage number for the resume
       x++;                         // used to count the stages for the resume 
