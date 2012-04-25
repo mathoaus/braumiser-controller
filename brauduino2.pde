@@ -118,7 +118,21 @@ void Buzzer(int number)
 }
 
 
+void pause_stage(void){
+  boolean stage_pause = false;
+  if (Button_1sec_press(Button_prev)){
+    Buzzer(1);
+    stage_pause = true;
+    digitalWrite(Heat,LOW);
+    digitalWrite(Pump,LOW); 
+      display_lcd(0,0,"     Paused    " );   
+    while (stage_pause)
+    {
+      if (Button_1sec_press(Button_prev))stage_pause=false;
+    }
 
+  } 
+}
 
 
 void display_lcd (int pos , int line ,const char* lable){
@@ -137,6 +151,9 @@ int Button_1sec_press (int Button_press){
   if (digitalRead(Button_press)==0){
     delay (1000);
     if (digitalRead(Button_press)==0){
+      lcd.clear();
+      while(digitalRead(Button_press)==0){
+      }
       return 1;
     }
   }
@@ -383,18 +400,18 @@ void pump_rest (int stage)
     if (Temp_c >= 95)tempReached = true; 
   }
   else{
-  pumptempError = stageTemp-Temp_c;
-  if (pumptempError <= 0)tempReached = true;
-  if ((pumpTime < 10)){ // starts pumps and heat
-    digitalWrite(Pump,HIGH);
-    pumpRest =false; 
-  }
-  if ((pumpTime >= 10)){ // pump rest
-    digitalWrite(Pump,LOW);
-    digitalWrite(Heat,LOW);
-    pumpRest = true;
-    if(pumpTime>=12 || (pumptempError > 1.0))pumpTime = 0;
-  } 
+    pumptempError = stageTemp-Temp_c;
+    if (pumptempError <= 0)tempReached = true;
+    if ((pumpTime < 10)){ // starts pumps and heat
+      digitalWrite(Pump,HIGH);
+      pumpRest =false; 
+    }
+    if ((pumpTime >= 10)){ // pump rest
+      digitalWrite(Pump,LOW);
+      digitalWrite(Heat,LOW);
+      pumpRest = true;
+      if(pumpTime>=12 || (pumptempError > 1.0))pumpTime = 0;
+    } 
   }
 }
 
@@ -490,6 +507,7 @@ void stage_loop (int stage, float H_temp=80, float L_temp=30){
     Temperature();// get temp
     Setpoint = stageTemp;//
     Input = Temp_c;
+    pause_stage();
     if (pumpRest){
       display_lcd(0,0,"   Pump  Rest   ");
       display_lcd(0,1,"                ");
@@ -770,13 +788,13 @@ int change_set(byte& set_change,int upper_limit,int lower_limit,int step_size)
 void unit_set (void)
 {
   int param[] ={
-    200,-200,1,200,-200,1,200,-200,1,5000,500,500,9,1,1,8,0,1              };
+    200,-200,1,200,-200,1,200,-200,1,5000,500,500,9,1,1,8,0,1                };
   int a = 0;
   boolean pidLoop = false;
   int pidSet,setaddr;
   int windowSizeSet;
   char* setName[] ={
-    "Kp = ","Ki = ","Kd = ","Windowsize= ","Num of Stages=","Num of Hops="              };
+    "Kp = ","Ki = ","Kd = ","Windowsize= ","Num of Stages=","Num of Hops="                };
 
   setaddr = 0;
   for(int i=0;i<6;i++){
@@ -1038,6 +1056,7 @@ void loop()
 
 
 }
+
 
 
 
