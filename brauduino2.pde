@@ -110,9 +110,9 @@ void Buzzer(int number)
   for (int i=0; i < number; i++)
   {
     digitalWrite (Buzz,HIGH);
-    delay (1000);
+    delay (500);
     digitalWrite(Buzz,LOW);
-    delay(200);
+    delay(100);
   }
 
 }
