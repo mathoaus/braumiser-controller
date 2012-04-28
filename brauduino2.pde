@@ -180,6 +180,7 @@ int Button_repeat (int Button_press){
 // holds whilst button pressed 
 int Button_hold_press (int Button_press){
   if (digitalRead (Button_press)==0){
+    delay(50);
     while (digitalRead (Button_press)==0){
     }
     return 1;
@@ -345,7 +346,7 @@ void heat_control(void)
 void pump_control(void)
 {
   //turns the pump on or off
-  if (digitalRead(Button_nxt)==0){
+  if (Button_hold_press(Button_nxt)){
     if (mpump == false){
       mpump = true;
       digitalWrite(Pump,HIGH);
@@ -353,8 +354,6 @@ void pump_control(void)
     else{
       mpump = false;
       digitalWrite(Pump,LOW);
-    }
-    while(digitalRead(Button_nxt)==0){
     }
   }
 
