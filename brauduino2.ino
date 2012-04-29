@@ -522,7 +522,7 @@ void stage_loop (int stage, float H_temp=80, float L_temp=30){
       lcd.print(stageTemp);
       display_lcd(9,1,"/");
       lcd.print(Temp_c);
-      lcd.print((char)0);
+      lcd.write((uint8_t)0);
     }
 
     change_temp(stageTemp,H_temp,L_temp);
@@ -652,7 +652,7 @@ void manual_mode (void)
     lcd.print(mset_temp);
     display_lcd(9,1,"/");
     lcd.print(Temp_c);
-    lcd.print((char)0);
+    lcd.write((uint8_t)0);
     change_temp(mset_temp,120,20);
     quit_mode(manualLoop);
     heat_control();
@@ -1046,7 +1046,7 @@ void loop()
     display_lcd(0,0," The Brauduino  ");
     display_lcd(0,1,"  Temp=");
     lcd.print(Temp_c);
-    lcd.print((char)0);
+    lcd.write((uint8_t)0);
 
 
     if (Button_1sec_press(Button_dn))mainMenu = 1;
