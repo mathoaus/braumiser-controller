@@ -618,7 +618,12 @@ void get_boil_settings (void)
 {
   nmbrHops = EEPROM.read(39);
   if (resume){
+    if(x!=9){
+      stageTime = EEPROM.read(40);
+    }
+    else{
     stageTime= EEPROM.read(37);
+    }
   }
   else{
     stageTime = EEPROM.read(40);
@@ -708,7 +713,7 @@ void auto_mode (void)
     stageTemp= 98.0; // set the intital boil temp to 98 deg c
     tempReached = false;  
     get_boil_settings();
-    stage_loop(x,120,94);
+    stage_loop(9,120,94);
 
     if(autoEnter){    // finishes the brewing process
       display_lcd(0,0,"    Brewing     ");
