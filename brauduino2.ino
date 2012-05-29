@@ -227,17 +227,19 @@ void Temperature(void){
 
 
 void PID_HEAT (void){
+  if((Setpoint - Input)>5){
+    digitalWrite(Heat,HIGH);
+  }
+  else{
   myPID.Compute();
-
   unsigned long now = millis();
   if(now - windowStartTime>WindowSize)
   {                                     //time to shift the Relay Window
     windowStartTime += WindowSize;
   }
-  if(Output > now - windowStartTime) digitalWrite(Heat,HIGH);
+  if((Output*(WindowSize/100)) > now - windowStartTime) digitalWrite(Heat,HIGH);
   else digitalWrite(Heat,LOW);
-
-
+  }
 }
 
 
@@ -248,10 +250,11 @@ void load_pid_settings (void)
   eepromKp = word(EEPROM.read(0),EEPROM.read(1));// read the PID settings from the EEPROM
   eepromKi = word(EEPROM.read(2),EEPROM.read(3));
   eepromKd = word(EEPROM.read(4),EEPROM.read(5));
-
+  eepromKi = eepromKi/100;
   myPID.SetTunings(eepromKp,eepromKi,eepromKd); // send the PID settings to the PID
   WindowSize = word(EEPROM.read(33),EEPROM.read(34));
-  myPID.SetOutputLimits(0, WindowSize);
+  myPID.SetOutputLimits(0, 100);
+  myPID.SetSampleTime(5000);
 
 }  
 
@@ -794,7 +797,7 @@ int change_set(byte& set_change,int upper_limit,int lower_limit,int step_size)
 void unit_set (void)
 {
   int param[] ={
-    200,-200,1,200,-200,1,200,-200,1,5000,500,500,9,1,1,8,0,1                };
+    100,-100,1,100,-100,1,100,-100,1,5000,500,500,9,1,1,8,0,1                };
   int a = 0;
   boolean pidLoop = false;
   int pidSet,setaddr;
