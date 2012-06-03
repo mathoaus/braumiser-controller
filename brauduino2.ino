@@ -229,6 +229,10 @@ void Temperature(void){
 void PID_HEAT (void){
   if((Setpoint - Input)>5){
     digitalWrite(Heat,HIGH);
+    if ((Setpoint - Input)<6)
+   {
+    myPID.Compute();
+    }
   }
   else{
   myPID.Compute();
