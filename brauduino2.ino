@@ -62,9 +62,7 @@ boolean pumpRest = false;
 //boolean boilLoop = false;
 boolean resume = false;
 float mset_temp = 35;
-float Temp_c, stageTemp,pumptempError;
-
-int temp;
+float Temp_c, stageTemp,pumptempError,Temp_PID;
 int x;
 int  stageTime,hopTime;
 
@@ -127,7 +125,7 @@ void pause_stage(void){
     stage_pause = true;
     digitalWrite(Heat,LOW);
     digitalWrite(Pump,LOW); 
-      display_lcd(0,0,"     Paused    " );   
+    display_lcd(0,0,"     Paused    " );   
     while (stage_pause)
     {
       if (Button_1sec_press(Button_prev))stage_pause=false;
@@ -216,6 +214,7 @@ void Temperature(void){
       data[i] = ds.read();
     } 
     unsigned int raw = (data[1] << 8) + data[0];
+    Temp_PID = (raw&0xFFFF)*0.0625;
     Temp_c = (raw & 0xFFFC) * 0.0625; 
     Conv_start = false;
     return;
@@ -227,22 +226,29 @@ void Temperature(void){
 
 
 void PID_HEAT (void){
+ if(autoEnter){
+  Setpoint = stageTemp;
+ }
+else{ 
+ Setpoint = mset_temp;
+}
+ Input = Temp_PID;
   if((Setpoint - Input)>5){
     digitalWrite(Heat,HIGH);
     if ((Setpoint - Input)<6)
-   {
-    myPID.Compute();
+    {
+      myPID.Compute();
     }
   }
   else{
-  myPID.Compute();
-  unsigned long now = millis();
-  if(now - windowStartTime>WindowSize)
-  {                                     //time to shift the Relay Window
-    windowStartTime += WindowSize;
-  }
-  if((Output*(WindowSize/100)) > now - windowStartTime) digitalWrite(Heat,HIGH);
-  else digitalWrite(Heat,LOW);
+    myPID.Compute();
+    unsigned long now = millis();
+    if(now - windowStartTime>WindowSize)
+    {                                     //time to shift the Relay Window
+      windowStartTime += WindowSize;
+    }
+    if((Output*(WindowSize/100)) > now - windowStartTime) digitalWrite(Heat,HIGH);
+    else digitalWrite(Heat,LOW);
   }
 }
 
@@ -259,7 +265,6 @@ void load_pid_settings (void)
   WindowSize = word(EEPROM.read(33),EEPROM.read(34));
   myPID.SetOutputLimits(0, 100);
   myPID.SetSampleTime(5000);
-
 }  
 
 
@@ -513,8 +518,6 @@ void stage_loop (int stage, float H_temp=80, float L_temp=30){
     lastminute=stageTime;
     stage_timing(stage);
     Temperature();// get temp
-    Setpoint = stageTemp;//
-    Input = Temp_c;
     pause_stage();
     if (pumpRest){
       display_lcd(0,0,"   Pump  Rest   ");
@@ -629,7 +632,7 @@ void get_boil_settings (void)
       stageTime = EEPROM.read(40);
     }
     else{
-    stageTime= EEPROM.read(37);
+      stageTime= EEPROM.read(37);
     }
   }
   else{
@@ -656,9 +659,6 @@ void manual_mode (void)
 
   while (manualLoop){            // manual loop
     Temperature();
-    Setpoint = mset_temp;
-    Input = Temp_c;
-
     display_lcd(0,0,"  Manual Mode   ");
     display_lcd(0,1,"S/A=");
     lcd.print(mset_temp);
@@ -801,13 +801,13 @@ int change_set(byte& set_change,int upper_limit,int lower_limit,int step_size)
 void unit_set (void)
 {
   int param[] ={
-    100,-100,1,100,-100,1,100,-100,1,5000,500,500,9,1,1,8,0,1                };
+    100,-100,1,100,-100,1,100,-100,1,5000,500,500,9,1,1,8,0,1                  };
   int a = 0;
   boolean pidLoop = false;
   int pidSet,setaddr;
   int windowSizeSet;
   char* setName[] ={
-    "Kp = ","Ki = ","Kd = ","Windowsize= ","Num of Stages=","Num of Hops="                };
+    "Kp = ","Ki = ","Kd = ","Windowsize= ","Num of Stages=","Num of Hops="                  };
 
   setaddr = 0;
   for(int i=0;i<6;i++){
@@ -1069,6 +1069,7 @@ void loop()
 
 
 }
+
 
 
 
