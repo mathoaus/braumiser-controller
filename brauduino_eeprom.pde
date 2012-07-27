@@ -50,6 +50,7 @@ void setup(){
  EEPROM.write (46,0x00);
  EEPROM.write (47,0x00);
  EEPROM.write (48,0x00); 
+ EEPROM.write (49,0x00);
 }
 void loop(){
 
