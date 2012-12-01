@@ -408,6 +408,7 @@ void pump_prime(void)
 void pump_rest (int stage)
 {
   if (stage==9){
+    pumpRest = false;
     if (Temp_c<94.0) digitalWrite(Pump,HIGH);
     else digitalWrite(Pump,LOW);
     if (Temp_c >= 95)tempReached = true; 
