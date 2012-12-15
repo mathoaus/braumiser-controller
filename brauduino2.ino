@@ -688,6 +688,7 @@ void auto_mode (void)
     wait_for_confirm(autoEnter);
     if(!(autoEnter))return;
     pump_prime();
+    EEPROM.write(49,0);
     x = 0;
   }
   if (autoEnter){     // mash steps
